@@ -1,0 +1,67 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# --- Laravel Específico ---
+/vendor/
+node_modules/
+public/storage
+public/hot
+storage/*.key
+/storage/framework/cache/data/
+/storage/framework/sessions/
+/storage/framework/testing/
+/storage/framework/views/
+/storage/logs/
+.phpunit.result.cache
+
+# --- Configurações e Chaves (NUNCA SUBIR) ---
+.env
+.env.backup
+.env.production
+php_errors.log
+
+# --- Compilação de Assets (Vite / Mix) ---
+public/build/
+public/mix-manifest.json
+hot
+
+# --- IDEs e Editores ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Sistema Operacional ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Banco de Dados Local ---
+*.sqlite
+*.sqlite-journal

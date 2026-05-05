@@ -13,11 +13,11 @@ return [
     |
     */
 
-    'defaults' => [
+    /*'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
-
+*/
     /*
     |--------------------------------------------------------------------------
     | Authentication Guards
@@ -34,10 +34,18 @@ return [
     | Supported: "session"
     |
     */
+'defaults' => [
+    'guard' => 'sanctum',
+    'passwords' => 'users',
 
+],
     'guards' => [
         'web' => [
             'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'sanctum' => [
+            'driver' => 'sanctum',
             'provider' => 'users',
         ],
     ],
@@ -98,6 +106,8 @@ return [
             'throttle' => 60,
         ],
     ],
+
+
 
     /*
     |--------------------------------------------------------------------------

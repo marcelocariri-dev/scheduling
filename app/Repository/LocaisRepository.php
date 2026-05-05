@@ -3,10 +3,10 @@
 namespace App\Repository;
 
 use App\Models\Local;
-use app\FIlters\LocalFilter;
-use Illuminate\Cache\Repository;
+use App\FIlters\LocalFilter;
 
-class LocaisRepository extends Repository
+
+class LocaisRepository
 {
     private $model;
     public function __construct()

@@ -20,5 +20,8 @@ public function userid($value){
     $this->builder->where('user_id', 'like', "%{$value}%");
 }
 
+public function  tipo($value){
+    $this->builder->where('tipo', 'like', "%{$value}%");
+}
 
 }

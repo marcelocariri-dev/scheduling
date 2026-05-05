@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 
 class Agendamento extends Model
-{ protected $table = "agendamentos";
+{ use Filterable;
+
+    protected $table = "agendamentos";
     protected $fillable = [
         'user_id',
         'local_id',
@@ -20,13 +23,14 @@ class Agendamento extends Model
     ];
 
     //relacionamentos
+    // se o nome do metodo é local o laravel procura por local_id
 
-    public function locais(){
-       $this->belongsTo(Local::class);
+    public function local(){
+       return $this->belongsTo(Local::class);
     }
-
-    public function Users(){
-        $this->belongsTo(User::class);
+//mesma coisa no user
+    public function User(){
+       return  $this->belongsTo(User::class);
      }
 
 }

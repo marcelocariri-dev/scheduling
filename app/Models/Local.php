@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Filterable;
 use Illuminate\Database\Eloquent\Model;
 
 class Local extends Model
-{  protected $table = "locais";
+{   use Filterable;
+
+    protected $table = "locais";
     protected $fillable = [
         'nome',
         'descricao',

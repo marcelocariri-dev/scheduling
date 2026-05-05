@@ -2,18 +2,19 @@
 
 namespace App\Repository;
 
+use App\FIlters\UserFilter;
 use App\Models\User;
-use Illuminate\Cache\Repository;
+
 use Illuminate\Http\Request;
 
-class UserRepository extends Repository
+class UserRepository
 {
    private $model;
     public function __construct()
     {
         $this->model = new User();
     }
-public function  filterPaginated(Request $request, int $perpage){
+public function  filterPaginated(UserFilter $request, int $perpage){
  return $this->model->with('agendamentos')
  ->orderBy('nome', 'asc')
  ->filter($request)

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\FIlters\LocalFilter;
-use App\Http\Controllers\Requests\LocalRequest;
-use App\Http\Controllers\Resource\LocalResource;
+use App\Http\Requests\LocalRequest;
+use App\Http\Resources\LocalResource;
+use App\Models\Local;
 use App\Repository\LocaisRepository;
 use Exception;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\TryCatch;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class LocalApiController extends Controller
@@ -24,6 +23,7 @@ class LocalApiController extends Controller
     //GET /api/eventos - Listar todos os eventos - INDEX => convenção
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Local::class);
         try {
 
             $filter = new LocalFilter($request);
@@ -39,11 +39,12 @@ class LocalApiController extends Controller
     }
 
 
-    public function store( $request)
+    public function store(LocalRequest $request):JsonResponse
     {
+        $this->authorize('create', Local::class);
         try {
 
-            $dados = $request->all();
+            $dados = $request->validated();
             $salvar = $this->repository->salvar($dados);
             return response()->json([
                 'message' =>  'local criado com sucesso',
@@ -65,8 +66,15 @@ class LocalApiController extends Controller
      */
     public function show($id)
     {
+        $get =  $this->repository->getId($id);
+
+
+        if (!$get) {
+            return response()->json(['message' => 'Local não encontrado.'], 404);
+        }
+        $this->authorize('view', $get);
         try {
-            $get =  $this->repository->getId($id);
+
             return new LocalResource($get);
         } catch (\Exception $ex) {
             return response()
@@ -82,16 +90,21 @@ class LocalApiController extends Controller
     public function update(LocalRequest $request, $id)
     {
         $id = $this->repository->getId($id);
+
+        if (!$id) {
+            return response()->json([
+                "message" => 'o id não pôde ser localizado'
+            ], 404);
+        }
+
+        $this->authorize('update', $id);
+
+
         try {
 
-            if (!$id) {
-                return response()->json([
-                    "message" => 'o id não pôde ser localizado'
-                ], 404);
-            }
-        #o array_merge concatena o array vindo formrequest com parametro que o nome de id = $id
+#o array_merge concatena o array vindo formrequest com parametro que o nome de id = $id
 
-           $local = array_merge($request->validated(), ['id' => $id]);
+            $local = array_merge($request->validated(), ['id' => $id]);
             $update = $this->repository->salvar($local);
             return response()->json([
                 "message" => 'evento atualizado com sucesso',
@@ -107,33 +120,29 @@ class LocalApiController extends Controller
     /**
      * Remove the resource from storage.
      */
-    public function destroy(int $id) :JsonResponse
-    {     $deletar = $this->repository->getId($id);
+    public function destroy(int $id)
+    {
+        $deletar = $this->repository->getId($id);
         if (!$deletar) {
             return response()->json([
                 "message" => 'o id não pôde ser localizado'
-            ], 404); }
+            ], 404);
+        }
+
+
+        $this->authorize('delete', $deletar);
 
         try {
 
             $this->repository->destroyId($id);
-                return response()->json(['message' => 'local deletado com sucesso',
+            return response()->noContent();
+        } catch (\Exception $ex) {
 
-            ], 204);
-}catch (\Exception $ex){
+            return response()->json([
+                'message' => 'não foi possível deletar o registro',
+                'erro' => $ex->getMessage(),
 
-    return response()->json(['message' => 'não foi possível deletar o registro',
-        'erro' => $ex->getMessage(),
-
-], 404);
-}
-
-
-
-}
-
-
-
-
-
+            ], 500);
+        }
+    }
 }

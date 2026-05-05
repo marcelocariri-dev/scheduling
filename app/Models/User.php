@@ -9,12 +9,12 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use App\Enums\UserRole;
-
+use App\Traits\Filterable;
 
 class User extends Authenticatable
 {
 
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable, Filterable;
 
     /**
      * The attributes that are mass assignable.
@@ -25,7 +25,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'setor',
         'tipo'
     ];
 
@@ -56,7 +55,7 @@ class User extends Authenticatable
     //relacionamentos
 
     public function agendamentos(){
-return $this->hasmany(Agendamento::class);
+return $this->hasMany(Agendamento::class);
     }
 
 

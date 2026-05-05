@@ -21,7 +21,7 @@ class AgendamentoRequest extends FormRequest
             'hora_inicio' => 'required|date_format:H:i',
             'hora_final'  => 'required|date_format:H:i|after:hora_inicio',
             'observacoes' => 'nullable|string|max:1000',
-            'status'      => 'nullable|in:pendente,confirmado,cancelado',
+            'status'      => 'nullable|in:confirmado,cancelado',
         ];
     }
 

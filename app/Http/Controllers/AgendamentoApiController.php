@@ -17,11 +17,11 @@ use Illuminate\Http\JsonResponse;
 class AgendamentoApiController extends Controller
 {
     private $repository;
-    private $user;
+
     public function __construct(AgendamentosRepository $repository, UserRepository $user)
     {
         $this->repository = $repository;
-        $this->user = $user;
+
     }
 
     //GET /api/eventos - Listar todos os eventos - INDEX => convenção

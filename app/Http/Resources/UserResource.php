@@ -13,7 +13,6 @@ class UserResource extends JsonResource
             'id'         => $this->id,
             'name'       => $this->name,
             'email'      => $this->email,
-            'setor'      => $this->setor,
             'tipo'       => $this->tipo,
             'roles'      => $this->getRoleNames(),
             'permissions'=> $this->whenLoaded('permissions', fn () => $this->getAllPermissions()->pluck('name')),

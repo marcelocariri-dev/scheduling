@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(del \"d:\\\\Laragon\\\\www\\\\Agenda\\\\database\\\\migrations\\\\2026_05_08_000002_add_setor_to_users.php\")"
+    ]
+  }
+}

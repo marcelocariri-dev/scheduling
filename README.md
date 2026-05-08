@@ -1,59 +1,386 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Agenda API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST para gerenciamento de agendamentos de espaços/locais, com controle de acesso por papéis e permissões.
 
-## About Laravel
+**Stack:** Laravel 11 · Laravel Sanctum · Spatie Permission
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Sumário
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Instalação](#instalação)
+- [Autenticação](#autenticação)
+- [Papéis e Permissões](#papéis-e-permissões)
+- [Endpoints](#endpoints)
+  - [Auth](#auth)
+  - [Agendamentos](#agendamentos)
+  - [Locais](#locais)
+  - [Usuários](#usuários)
+- [Filtros de Listagem](#filtros-de-listagem)
+- [Estrutura do Projeto](#estrutura-do-projeto)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Instalação
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed --class=RolesAndPermissionsSeeder
+php artisan db:seed --class=AdminUserSeeder
+```
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Autenticação
 
-### Premium Partners
+A API usa **Laravel Sanctum** com tokens Bearer.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Todas as rotas privadas exigem o header:
 
-## Contributing
+```
+Authorization: Bearer {token}
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+O token é retornado no login e no registro.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Papéis e Permissões
 
-## Security Vulnerabilities
+| Permissão               | Admin | Gestor | Funcionário |
+|-------------------------|:-----:|:------:|:-----------:|
+| agendamentos.listar     | ✅    | ✅     | ✅          |
+| agendamentos.listar_todos | ✅  | ❌     | ❌          |
+| agendamentos.criar      | ✅    | ✅     | ✅          |
+| agendamentos.editar     | ✅    | ✅     | ✅ (próprios)|
+| agendamentos.deletar    | ✅    | ✅     | ✅ (próprios)|
+| locais.listar           | ✅    | ✅     | ✅          |
+| locais.criar            | ✅    | ✅     | ❌          |
+| locais.editar           | ✅    | ✅     | ❌          |
+| locais.deletar          | ✅    | ❌     | ❌          |
+| usuarios.listar         | ✅    | ❌     | ❌          |
+| usuarios.criar          | ✅    | ❌     | ❌          |
+| usuarios.editar         | ✅    | ❌     | ❌          |
+| usuarios.deletar        | ✅    | ❌     | ❌          |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## Endpoints
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Base URL: `/api`
+
+---
+
+### Auth
+
+#### POST `/register`
+Cria um novo usuário com papel **funcionário**.
+
+**Body:**
+```json
+{
+  "name": "João Silva",
+  "email": "joao@email.com",
+  "password": "senha123",
+  "password_confirmation": "senha123"
+}
+```
+
+**Resposta 201:**
+```json
+{
+  "token": "1|abc...",
+  "token_type": "Bearer",
+  "user": { "id": 1, "name": "João Silva", "email": "joao@email.com", ... }
+}
+```
+
+---
+
+#### POST `/login`
+Autentica um usuário existente.
+
+**Body:**
+```json
+{
+  "email": "joao@email.com",
+  "password": "senha123"
+}
+```
+
+**Resposta 200:**
+```json
+{
+  "access_token": "1|abc...",
+  "token_type": "Bearer",
+  "user": { ... },
+  "roles": ["funcionario"],
+  "permissions": ["agendamentos.listar", "agendamentos.criar", ...]
+}
+```
+
+**Resposta 401:** Credenciais inválidas.
+
+---
+
+#### POST `/logout` `🔒`
+Revoga o token atual.
+
+**Resposta 200:**
+```json
+{ "message": "logout realizado com sucesso" }
+```
+
+---
+
+#### GET `/me` `🔒`
+Retorna os dados do usuário autenticado.
+
+**Resposta 200:**
+```json
+{
+  "user": { "id": 1, "name": "João Silva", ... },
+  "roles": ["funcionario"],
+  "permission": ["agendamentos.listar", ...]
+}
+```
+
+---
+
+### Agendamentos
+
+Todas as rotas exigem autenticação `🔒`.
+
+#### GET `/agendamentos`
+Lista agendamentos paginados. Suporta [filtros](#filtros-de-listagem).
+
+**Query params:** `perpage` (padrão: 15), `titulo`, `data`, `status`, `userid`
+
+**Resposta 200:** Lista paginada de agendamentos.
+
+---
+
+#### POST `/agendamentos`
+
+**Body:**
+```json
+{
+  "user_id": 1,
+  "local_id": 2,
+  "titulo": "Reunião de planejamento",
+  "data": "2026-06-10",
+  "hora_inicio": "09:00",
+  "hora_final": "10:30",
+  "observacoes": "Trazer relatórios",
+  "status": "confirmado"
+}
+```
+
+| Campo        | Tipo    | Obrigatório | Regras                          |
+|--------------|---------|:-----------:|---------------------------------|
+| user_id      | integer | ✅          | deve existir em `users`         |
+| local_id     | integer | ✅          | deve existir em `locais`        |
+| titulo       | string  | ✅          | máx. 255 caracteres             |
+| data         | date    | ✅          | hoje ou futuro (`Y-m-d`)        |
+| hora_inicio  | string  | ✅          | formato `HH:MM`                 |
+| hora_final   | string  | ✅          | formato `HH:MM`, após hora_inicio |
+| observacoes  | string  | ❌          | máx. 1000 caracteres            |
+| status       | string  | ❌          | `confirmado` ou `cancelado` (padrão: `confirmado`) |
+
+**Resposta 201:**
+```json
+{
+  "message": "local criado com sucesso",
+  "data": { "id": 1, "titulo": "Reunião de planejamento", ... }
+}
+```
+
+---
+
+#### GET `/agendamentos/{id}`
+Retorna um agendamento pelo ID.
+
+**Resposta 200:** Dados do agendamento com local vinculado.
+**Resposta 404:** Agendamento não encontrado.
+
+---
+
+#### PUT `/agendamentos/{id}`
+Atualiza um agendamento. Mesmo body do POST.
+
+**Resposta 200:**
+```json
+{
+  "message": "evento atualizado com sucesso",
+  "data": { ... }
+}
+```
+
+---
+
+#### DELETE `/agendamentos/{id}`
+Remove um agendamento.
+
+**Resposta 200:**
+```json
+{ "message": "local deletado com sucesso" }
+```
+
+---
+
+### Locais
+
+Todas as rotas exigem autenticação `🔒`.
+
+#### GET `/locais`
+Lista locais paginados. Suporta [filtros](#filtros-de-listagem).
+
+**Query params:** `perpage` (padrão: 15), `nome`, `ativo`, `id`
+
+---
+
+#### POST `/locais`
+
+**Body:**
+```json
+{
+  "nome": "Sala de Reuniões A",
+  "descricao": "Capacidade para 10 pessoas",
+  "ativo": true
+}
+```
+
+| Campo    | Tipo    | Obrigatório | Regras             |
+|----------|---------|:-----------:|--------------------|
+| nome     | string  | ✅          | máx. 255 caracteres|
+| descricao| string  | ❌          | máx. 500 caracteres|
+| ativo    | boolean | ❌          | `true` ou `false`  |
+
+**Resposta 201:**
+```json
+{
+  "message": "local criado com sucesso",
+  "data": { "id": 1, "nome": "Sala de Reuniões A", ... }
+}
+```
+
+---
+
+#### GET `/locais/{id}`
+Retorna um local com seus agendamentos (ordenados por data desc).
+
+---
+
+#### PUT `/locais/{id}`
+Atualiza um local. Mesmo body do POST.
+
+---
+
+#### DELETE `/locais/{id}`
+Remove um local. Falha se houver agendamentos vinculados.
+
+**Resposta 500:** `"existe agendamentos ligados a esse local"`
+
+---
+
+### Usuários
+
+Todas as rotas exigem autenticação `🔒` e papel **admin**.
+
+#### GET `/users`
+Lista usuários paginados.
+
+**Query params:** `perpage` (padrão: 15), `nome`, `tipo`
+
+---
+
+#### POST `/users`
+
+**Body:**
+```json
+{
+  "name": "Maria Souza",
+  "email": "maria@email.com",
+  "password": "senha123",
+  "password_confirmation": "senha123",
+  "tipo": "gestor"
+}
+```
+
+| Campo    | Tipo   | Obrigatório | Regras                              |
+|----------|--------|:-----------:|-------------------------------------|
+| name     | string | ✅          | máx. 255 caracteres                 |
+| email    | string | ✅          | e-mail válido, único                |
+| password | string | ✅          | mín. 8 caracteres, com confirmação  |
+| tipo     | string | ✅          | `admin`, `gestor` ou `funcionario`  |
+
+---
+
+#### GET `/users/{id}`
+Retorna dados de um usuário com seus agendamentos.
+
+---
+
+#### PUT `/users/{id}`
+Atualiza um usuário. `password` é opcional no update.
+
+---
+
+#### DELETE `/users/{id}`
+Remove um usuário. Não é possível deletar a própria conta. Falha se houver agendamentos vinculados.
+
+---
+
+## Filtros de Listagem
+
+Os filtros são passados como query params. Exemplo:
+
+```
+GET /api/agendamentos?titulo=reunião&status=confirmado&perpage=10
+```
+
+| Recurso      | Filtros disponíveis              |
+|--------------|----------------------------------|
+| agendamentos | `titulo`, `data`, `status`, `userid` |
+| locais       | `nome`, `ativo`, `id`            |
+| usuarios     | `nome`, `tipo`                   |
+
+---
+
+## Estrutura do Projeto
+
+```
+app/
+├── Enums/
+│   └── UserRole.php              # Enum: admin, gestor, funcionario
+├── FIlters/
+│   ├── QueryFilter.php           # Base abstrata dos filtros
+│   ├── AgendamentoFIlter.php
+│   ├── LocalFilter.php
+│   └── UserFilter.php
+├── Http/
+│   ├── Controllers/
+│   │   ├── AuthApiController.php
+│   │   ├── AgendamentoApiController.php
+│   │   ├── LocalApiController.php
+│   │   └── UserApiController.php
+│   ├── Requests/                 # Validação de entrada
+│   └── Resources/                # Formatação de saída (JSON)
+├── Models/
+│   ├── User.php
+│   ├── Agendamento.php
+│   └── Local.php
+├── Policies/                     # Autorização por papel/permissão
+│   ├── AgendamentoPolicy.php
+│   ├── LocalPolicy.php
+│   └── UserPolicy.php
+├── Repository/                   # Camada de acesso a dados
+│   ├── AgendamentosRepository.php
+│   ├── LocaisRepository.php
+│   └── UserRepository.php
+└── Traits/
+    └── Filterable.php            # Scope `filter()` para os models
+```

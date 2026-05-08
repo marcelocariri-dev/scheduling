@@ -15,7 +15,7 @@ class AgendamentoRequest extends FormRequest
     {
         return [
             'user_id'     => 'required|exists:users,id',
-            'local_id'    => 'required|exists:locals,id',
+            'local_id'    => 'required|exists:locais,id',
             'titulo'      => 'required|string|max:255',
             'data'        => 'required|date|after_or_equal:today',
             'hora_inicio' => 'required|date_format:H:i',

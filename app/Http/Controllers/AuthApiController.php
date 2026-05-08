@@ -43,31 +43,28 @@ $dados = $loginRequest->validated();
 
 $user = User::where('email', $dados['email'])->first();
 if(!$user || !Hash::check($dados['password'], $user->password)){
-return response()->json(['message' => 'credenciais inválidas'
-], 401);
-
-$token = $user->createToken('aut_token')->plainTextToken;
-
-
+    return response()->json(['message' => 'credenciais inválidas'], 401);
 }
+
+$token = $user->createToken('auth_token')->plainTextToken;
+
 return response()->json([
-    'access_token' => $token,         // o token para usar nas próximas requests
-    'token_type'   => 'Bearer',       // tipo de autenticação
-    'user'         => new UserResource($user),  // dados do usuário formatados
-    'roles'        => $user->getRoleNames(),     // ['funcionario']
-    'permissions'  => $user->getAllPermissions()->pluck('name'), // ['agendamentos.listar', ...]
+    'access_token' => $token,
+    'token_type'   => 'Bearer',
+    'user'         => new UserResource($user),
+    'roles'        => $user->getRoleNames(),
+    'permissions'  => $user->getAllPermissions()->pluck('name'),
 ]);
 
 
 
 }
 
-public function logout (Request $request){
+public function logout(Request $request): JsonResponse
+{
     /** @var \Laravel\Sanctum\PersonalAccessToken $token */
-    $token = $request->user()->currentAccessToken();
-  $token->delete();
-
-
+    $request->user()->currentAccessToken()->delete();
+    return response()->json(['message' => 'logout realizado com sucesso']);
 }
 public function me (Request $request){
     $user = $request->user();

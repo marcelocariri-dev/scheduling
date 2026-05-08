@@ -7,31 +7,25 @@ class AgendamentoFIlter extends QueryFilter
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(\Illuminate\Http\Request $request)
     {
-
-    }
-    public function userid($value){
-            $this->builder->where('user_id', 'like', "%{$value}%" );
+        parent::__construct($request);
     }
 
-    public function titulo($value){
-        $this->builder->where('nome', 'like', "%{$value}%");
+    public function userid(string $value): void {
+        $this->builder->where('user_id', $value);
     }
 
-    public function data($value){
-        $this->builder->where(function($query) use ($value){
-
-           $query->wheredate('data_inicio', '>=', "%{$value}%")
-           ->wheredate('data_final', '<=', "%{$value}%" );
-        });
-
-
+    public function titulo(string $value): void {
+        $this->builder->where('titulo', 'like', "%{$value}%");
     }
 
+    public function data(string $value): void {
+        $this->builder->whereDate('data', $value);
+    }
 
-    public function status ($value ){
-        $this->builder->where('status', 'like', "%{$value}%");
+    public function status(string $value): void {
+        $this->builder->where('status', $value);
     }
 
 }

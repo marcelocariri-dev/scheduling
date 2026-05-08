@@ -7,7 +7,7 @@ use App\Models\User;
 
 class AgendamentoPolicy
 {
-public function before (User $user, string $ability): ?bool{
+public function before(User $user, string $_ability): ?bool{
 if($user->hasrole('admin')){
     return true;
 
@@ -20,7 +20,7 @@ public function viewany(User $user):bool{
     return $user->hasAnyPermission(['agendamentos.listar', 'agendamentos.listar_todos']);
 }
 
-public function view(User $user, Agendamento $agendamento):bool{
+public function view(User $user, Agendamento $_agendamento):bool{
 return $user->hasAnyPermission(['agendamentos.listar', 'agendamentos.listar_todos']);
 
 }
@@ -31,7 +31,7 @@ public function create (User $user):bool{
 
 public function update(User $user, Agendamento $agendamento ):bool{
 
-    if(!$user->hasPermissionTo([' agendamentos.editar'])){
+    if(!$user->hasPermissionTo(['agendamentos.editar'])){
 return false;
     }
     if($user->id === $agendamento->user_id  ){
@@ -41,7 +41,7 @@ return false;
 }
 
 public function delete(User $user, Agendamento $agendamento){
-    if(!$user->hasPermissionTo([' agendamentos.deletar'])){
+    if(!$user->hasPermissionTo(['agendamentos.deletar'])){
         return false;
             }
             if($user->id === $agendamento->user_id  ){

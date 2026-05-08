@@ -17,8 +17,8 @@ class LocalResource extends JsonResource
     'descricao' => $this->descricao,
         'ativo' => $this->ativo,
 
-        'criado_em' => $this->created_at->format('Y-m-d H:i:s'),
-        'atualizado_em' => $this->updated_at->format('Y-m-d H:i:s'),
+        'criado_em' => $this->created_at?->format('Y-m-d H:i:s'),
+        'atualizado_em' => $this->updated_at?->format('Y-m-d H:i:s'),
 
     ];
    }

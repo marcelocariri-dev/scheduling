@@ -7,21 +7,17 @@ class UserFilter extends QueryFilter
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(\Illuminate\Http\Request $request)
     {
-        //
+        parent::__construct($request);
     }
-public function nome($value){
-    $this->builder->where('nome', 'like', "%{$value}$");
 
-}
+    public function nome(string $value): void {
+        $this->builder->where('name', 'like', "%{$value}%");
+    }
 
-public function userid($value){
-    $this->builder->where('user_id', 'like', "%{$value}%");
-}
-
-public function  tipo($value){
-    $this->builder->where('tipo', 'like', "%{$value}%");
-}
+    public function tipo(string $value): void {
+        $this->builder->where('tipo', 'like', "%{$value}%");
+    }
 
 }

@@ -14,8 +14,8 @@ class UserPolicy
 
     }
 
-    public function viewany (User $user): bool  {
-        return  $user->hasPermissionTo('usuario.listar');
+    public function viewany(User $user): bool {
+        return $user->hasPermissionTo('usuarios.listar');
     }
 
     public function view(User $user, User $model): bool

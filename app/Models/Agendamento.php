@@ -17,9 +17,11 @@ class Agendamento extends Model
         'hora_inicio',
         'hora_final',
         'observacoes',
-        'status'
+        'status',
+    ];
 
-
+    protected $casts = [
+        'data' => 'date',
     ];
 
     //relacionamentos

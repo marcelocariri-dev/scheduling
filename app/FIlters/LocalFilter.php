@@ -7,20 +7,21 @@ class LocalFilter extends QueryFilter
     /**
      * Create a new class instance.
      */
-    public function __construct()
+    public function __construct(\Illuminate\Http\Request $request)
     {
-        //
+        parent::__construct($request);
     }
 
-
-    public function nome($value){
-         $this->builder->where('nome', 'like', "%{$value}%");
+    public function nome(string $value): void {
+        $this->builder->where('nome', 'like', "%{$value}%");
     }
-    public function ativo($value){
+
+    public function ativo(string $value): void {
         $this->builder->where('ativo', (bool)$value);
     }
-    public function id($value){
-        $this->builder->where('id', 'like', "%{$value}%");
+
+    public function id(string $value): void {
+        $this->builder->where('id', $value);
     }
 
 
